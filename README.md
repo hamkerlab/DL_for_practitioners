@@ -17,6 +17,8 @@ In the repo you find also a *yml file that can be used to initialize a conda-env
 ## Notebooks
 
 
-0. Qickstart to PyTorch
-1. Introduction to deep learning
-2. Introduction to convolutional neural networks (including ResNet)
+1. Qickstart to PyTorch
+2.1 Introduction to multilayer perceptron (MLP)
+2.2 Introduction to convolutional neural networks (CNN)
+2.3 CNN with Imagenette
+2.4 ResNet 
