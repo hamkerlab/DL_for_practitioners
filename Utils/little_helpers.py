@@ -42,6 +42,7 @@ def set_seed(seed: Optional[int]):
         torch.cuda.manual_seed(seed)
         torch.cuda.manual_seed_all(seed)
         torch.backends.cudnn.deterministic = True
+        torch.backends.cudnn.benchmark = False
 
 
 def save_metrics(train_losses: List[float], train_accs: List[float],
@@ -93,3 +94,9 @@ def load_pretrained_vit(model: nn.Module,
     print(f"Loaded {len(filtered_dict)} / {len(pretrained_dict)} layers from pretrained model")
 
     return model
+
+def get_parameters(model):
+    parameters = filter(lambda p: p.requires_grad, model.parameters())
+    parameters = sum([np.prod(p.size()) for p in parameters]) / 1_000_000
+    return parameters
+    

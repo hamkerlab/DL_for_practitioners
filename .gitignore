@@ -22,14 +22,12 @@ Dataset/FashionMNIST
 *__pycache__*
 
 # Jupyter checkpoints
-.ipynb_checkpoints/
+*.ipynb_checkpoints/
 
 # Data
 Dataset/*
-mnist/*
 
 # Saved models
 *.pt
 *.pth
-06_Contrastive_Learning/content/*
-
+*.npy

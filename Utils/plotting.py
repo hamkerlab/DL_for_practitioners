@@ -377,47 +377,15 @@ def visualize_patch_embeddings(model: nn.Module,
     Visualize the patch embedding filters or their principal components.
     Similar to Figure 7 (left) in the ViT paper.
     """
-    from sklearn.decomposition import PCA
-
     # Extract the weights from the patch embedding layer
     weights = model.proj.weight.data.clone() if hasattr(model, 'proj') else model.patch_embed.proj.weight.data.clone()
-
-    # Get dimensions
-    embed_dim, in_channels, patch_size, patch_size = weights.shape
 
     # Set up grid dimensions
     grid_cols = min(7, num_components)
     grid_rows = (num_components + grid_cols - 1) // grid_cols  # Ceiling division
 
-    if embed_dim > 28:
-        # Reshape to (embed_dim, in_channels*patch_size*patch_size)
-        weights_flattened = weights.reshape(embed_dim, -1)
-
-        # Use PCA to reduce dimensionality
-        pca = PCA(n_components=num_components)
-        pca_components = pca.fit_transform(weights_flattened.cpu().numpy())
-
-        title = f"Principal components of patch embedding filters"
-
-        # Use the top filters that most align with the principal components
-        pca_components = pca.components_  # shape: [num_components, embed_dim]
-        transformed_weights = []
-
-        for component in pca_components:
-            # Find the filter that most aligns with this component
-            component = torch.from_numpy(component).to(weights.device)
-            similarities = torch.nn.functional.cosine_similarity(
-                component.unsqueeze(0),
-                weights_flattened,
-                dim=1
-            )
-            most_similar_idx = torch.argmax(similarities).item()
-            transformed_weights.append(weights[most_similar_idx].cpu().numpy())
-
-        filters_to_display = np.array(transformed_weights)
-    else:
-        filters_to_display = weights[:num_components].cpu().numpy()
-        title = f"Patch embedding filters (first {num_components} filters)"
+    filters_to_display = weights[:num_components].cpu().numpy()
+    title = f"Patch embedding filters (first {num_components} filters)"
 
     # Create a grid to visualize the filters
     fig, axs = plt.subplots(grid_rows, grid_cols, figsize=(grid_cols * 2, grid_rows * 2))
@@ -442,6 +410,46 @@ def visualize_patch_embeddings(model: nn.Module,
 
     if output_dir is not None:
         plt.savefig(os.path.join(output_dir, 'patch_embeddings.png'), dpi=300)
+        plt.close()
+    else:
+        plt.show()
+
+
+def visualize_position_embeddings(model: nn.Module,
+                                  figsize: Tuple[int, int] = (10, 10),
+                                  output_dir: Optional[str] = None) -> None:
+    import torch.nn.functional as F
+
+    # Extract position embeddings
+    pos_embed = model.pos_embed.detach()
+
+    # Get grid dimensions
+    if hasattr(model.patch_embed, 'num_patches_h') and hasattr(model.patch_embed, 'num_patches_w'):
+        h = model.patch_embed.num_patches_h
+        w = model.patch_embed.num_patches_w
+    else:
+        # Assume square patches
+        num_patches = model.patch_embed.num_patches
+        h = w = int(np.sqrt(num_patches))
+
+    # Create figure
+    fig = plt.figure(figsize=figsize)
+    fig.suptitle("Cosine similarity of the position embedding", fontsize=24)
+
+    # Create a subplot for each position embedding
+    for i in range(1, pos_embed.shape[1]):
+        sim = F.cosine_similarity(pos_embed[0, i:i + 1], pos_embed[0, 1:], dim=1)
+        sim = sim.reshape((h, w)).detach().cpu().numpy()
+        ax = fig.add_subplot(h, w, i)
+        ax.axes.get_xaxis().set_visible(False)
+        ax.axes.get_yaxis().set_visible(False)
+        ax.imshow(sim)
+
+    plt.tight_layout()
+    plt.subplots_adjust(top=0.95)
+
+    if output_dir is not None:
+        plt.savefig(os.path.join(output_dir, 'pos_embeddings.png'), dpi=300)
         plt.close()
     else:
         plt.show()

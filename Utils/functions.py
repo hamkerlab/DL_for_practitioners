@@ -7,6 +7,7 @@ import os
 from tqdm.notebook import tqdm
 from typing import Dict, List, Tuple, Optional, Union, Any, Type
 import pandas as pd
+import numpy as np
 
 
 def train_model(
@@ -26,6 +27,8 @@ def train_model(
     """
     Train a model and return training history
     """
+    model.train()  # Set model to training mode
+
     # Initialize history dictionary to track metrics
     history: Dict[str, List[float]] = {
         'train_loss': [],
@@ -183,6 +186,7 @@ def test_model(
         device: torch.device,
         class_names: list[str],
         print_per_class_summary: bool = True,
+        collect_embeddings: bool = False,
 ):
     # Set model to evaluation mode
     model.eval()
@@ -199,6 +203,12 @@ def test_model(
         'probs': []
     }
 
+    if collect_embeddings and hasattr(model, 'return_features'):
+        all_embeddings = []
+        embed_labels_idx = []
+    else:
+        collect_embeddings = False
+
     # Disable gradient calculation for inference
     with torch.no_grad():
         img_idx = 0  # Global image index counter. Only really useful for if the test_loader does not shuffle
@@ -210,11 +220,14 @@ def test_model(
 
             # Forward pass
             outputs = model(inputs)
-            if isinstance(outputs, tuple):
+            if collect_embeddings:
+                all_embeddings.append(outputs[1].cpu().numpy())
                 outputs = outputs[0]
-                embeddings = outputs[1]
+                embed_labels_idx.append(labels.cpu().numpy())
             else:
-                embeddings = None
+                if isinstance(outputs, tuple):
+                    outputs = outputs[0]
+
             probabilities = torch.nn.functional.softmax(outputs, dim=1)
             confidence_values, predicted = torch.max(probabilities, dim=1)
 
@@ -271,7 +284,13 @@ def test_model(
         print("\nPer-class Performance:")
         print(aggregate_df.to_string(index=False))
 
-    if embeddings is not None:
+    if collect_embeddings:
+        # Concatenate all batches (List[np.ndarray] to np.ndarray)
+        embeddings = {
+            'all_embeddings': np.concatenate(all_embeddings, axis=0),
+            'all_labels': np.concatenate(embed_labels_idx, axis=0)
+        }
+
         return aggregate_df, per_image_df, overall_accuracy, embeddings
     else:
         return aggregate_df, per_image_df, overall_accuracy

@@ -340,3 +340,79 @@ def prepare_tiny_imagenet(
         'idx_to_class': train_dataset.idx_to_class,
         'class_names': train_dataset.class_names,
     }
+
+def prepare_imagenette(train_compose: transforms.Compose,
+                          test_compose: transforms.Compose,
+                          save_path: str,
+                          batch_size: int = 64,
+                          num_workers: int = 4):
+    """
+    Prepare the Imagenette  dataset with custom transformations.
+    Find more information here: https://github.com/fastai/imagenette
+
+    :param train_compose: Compose object for training data
+    :param test_compose: Compose object for test data
+    :param save_path: Path to save dataset
+    :param batch_size: Batch size
+    :param num_workers: Number of workers
+    :return: train_loader, test_loader, class_names
+
+    """
+    # Set appropriate num_workers based on OS
+    if num_workers:
+        if platform.system() == 'Windows':
+            # Use 0 workers on Windows by default to avoid multiprocessing issues:
+            # Windows uses "spawn" for creating processes instead of "fork", which can cause issues with multiprocessing
+            num_workers = 0
+
+    # NOTE: in torchvision 0.22, Imagenette did not check if the download directory already exists, so we have to do it
+    dataset_subfolder = os.path.join(save_path, 'imagenette2-320')
+    train_folder = os.path.join(dataset_subfolder, 'train')
+    val_folder = os.path.join(dataset_subfolder, 'val')
+
+    download_data = not (os.path.isdir(train_folder) and os.path.isdir(val_folder))
+
+    # Load test data with basic transformations
+    # NOTE: we don't have to download the test set extra
+    # as it is already downloaded with the training set
+    train_dataset = datasets.Imagenette(
+        root=save_path,
+        split='train',
+        size = '320px',
+        download=download_data,
+        transform = train_compose,
+        )
+
+    test_dataset = datasets.Imagenette(
+        root=save_path, 
+        split='val', 
+        size = '320px', 
+        download=False,
+        transform = test_compose, 
+        )
+
+
+    # Create data loaders
+    train_loader = DataLoader(
+        train_dataset,
+        batch_size=batch_size,
+        shuffle=True,
+        num_workers=num_workers,
+        pin_memory=torch.cuda.is_available()
+    )
+
+    test_loader = DataLoader(
+        test_dataset,
+        batch_size=batch_size,
+        shuffle=False,
+        num_workers=num_workers,
+        pin_memory=torch.cuda.is_available()
+    )
+
+    # Imagenette class names
+    class_names = ['Tench','English springer','Cassette player',
+                   'Chain saw','Church','French horn',
+                   'Garbage truck','Gas pump','Golf ball',
+                   'Parachute']
+
+    return train_loader, test_loader, class_names
