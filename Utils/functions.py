@@ -27,7 +27,6 @@ def train_model(
     """
     Train a model and return training history
     """
-    model.train()  # Set model to training mode
 
     # Initialize history dictionary to track metrics
     history: Dict[str, List[float]] = {
@@ -145,7 +144,12 @@ def evaluate_model(
     """
     Evaluate a model on a dataset
     """
+    # Set model to evaluation mode
     model.eval()
+
+    # Move model to device
+    model.to(device)
+
     running_loss: float = 0.0
     correct: int = 0
     total: int = 0
@@ -190,6 +194,9 @@ def test_model(
 ):
     # Set model to evaluation mode
     model.eval()
+
+    # Move model to device
+    model.to(device)
 
     # Per-image results storage
     per_image_data = {
@@ -303,13 +310,16 @@ def get_model_predictions(
         class_info: dict,
         output_csv: str = None,
         return_probabilities: bool = False,
-        top_k: int = 5
+        top_k: int = 5,
 ):
     """
     Generate and return predictions for a model on the TinyImageNet test set.
     """
     # Set model to evaluation mode
     model.eval()
+
+    # Move model to device
+    model.to(device)
 
     # Prepare data structures for predictions
     predictions_data = {
