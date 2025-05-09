@@ -38,7 +38,7 @@ conda activate microcredential
 
 Please make sure that the environment is active throughout the installation process of the packages and while working with the notebooks.
 
-we first install Python:
+First, install Python:
 
 ```
 conda install python
@@ -54,6 +54,7 @@ installs Python version 3.11.
 
 
 Together with Python, conda also installs pip in the environment, what we use to install the other necessary packages.
+
 As PyTorch has to be installed either in a CPU only version, on in a GPU version (which also depends on your CUDA driver) we will first install all other packages mentioned above. 
 This can be done with one line:
 
@@ -69,7 +70,7 @@ If all packages have been successfully installed, proceed to install PyTorch.
 
 Check your operating system, decide if you want to run it on CPU only or with GPU support, and for the latter also check your CUDA version.
 Then go to the [PyTorch website](https://pytorch.org/get-started/locally/) and select under START LOCALLY the conditions you want to use to install PyTorch.
-It will then generate the pip command to install PyTorch and all necessary packages.
+It will then generate the pip command to install PyTorch and all necessary packages.  
 **NOTE** Did not use the _pip3_ command, use _pip_ instead.
 
 Here is an example pip line to install it with CUDA 12.8: 
@@ -83,6 +84,16 @@ If you want to use pretrained models from [timm](https://timm.fast.ai/), you can
 ```
 pip install timm
 ```
+
+### Pre-defined environments
+
+We added two pre-defined environments: one for linux, one for windows (without PyTorch).  
+You can create your conda environment also based on this:
+
+```
+conda env create -v environments_*.yml
+```
+
 
 ## Notebooks
 
