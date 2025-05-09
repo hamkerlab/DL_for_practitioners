@@ -91,7 +91,7 @@ We added two pre-defined environments: one for linux, one for windows (without P
 You can create your conda environment also based on this:
 
 ```
-conda env create -v environments_*.yml
+conda env create -f environment_*.yml
 ```
 
 
