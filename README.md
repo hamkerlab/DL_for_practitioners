@@ -97,3 +97,5 @@ pip install timm
    2.3. CNN with Imagenette
 
    2.4. ResNet 
+
+   2.5. YOLO 

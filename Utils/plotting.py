@@ -1,13 +1,17 @@
 import os
+import numpy as np
 
 import torch
 from torch.utils.data import DataLoader
 from torch import nn
-import numpy as np
+import torchvision.transforms as T
 
 import matplotlib.pyplot as plt
+from PIL import ImageDraw
 from typing import List, Tuple, Dict, Optional, Union
 import pandas as pd
+
+from Utils.little_helpers import get_overlap, get_bboxes
 
 
 def visualize_training_results(train_losses: List[float],
@@ -453,3 +457,66 @@ def visualize_position_embeddings(model: nn.Module,
         plt.close()
     else:
         plt.show()
+
+
+def plot_boxes(data, labels, classes, color='orange', min_confidence=0.2, max_overlap=0.5,image_size = (448,448), file='test_img'):
+    """Plots bounding boxes on the given image."""
+
+    grid_size = 7
+    num_classes = len(classes)
+
+    grid_size_x = data.size(dim=2) / grid_size#S
+    grid_size_y = data.size(dim=1) / grid_size#S
+    m = labels.size(dim=0)
+    n = labels.size(dim=1)
+
+    bboxes = get_bboxes(m,n,labels, grid_size_x, grid_size_y,num_classes, min_confidence, image_size)
+
+    # Sort by highest to lowest confidence
+    bboxes = sorted(bboxes, key=lambda x: x[3], reverse=True)
+    # Calculate IOUs between each pair of boxes
+    num_boxes = len(bboxes)
+    iou = [[0 for _ in range(num_boxes)] for _ in range(num_boxes)]
+    for i in range(num_boxes):
+        for j in range(num_boxes):
+            iou[i][j] = get_overlap(bboxes[i], bboxes[j])
+
+    # Non-maximum suppression and render image
+    data = data.numpy()
+    data = np.moveaxis(data,0,-1)
+    
+    image = T.ToPILImage()(data)
+    draw = ImageDraw.Draw(image)
+    discarded = set()
+    for i in range(num_boxes):
+        if i not in discarded:
+            tl, width, height, confidence, class_index = bboxes[i]
+
+            # Decrease confidence of other conflicting bboxes
+            for j in range(num_boxes):
+                other_class = bboxes[j][4]
+                if j != i and other_class == class_index and iou[i][j] > max_overlap:
+                    discarded.add(j)
+
+            # Annotate image
+            draw.rectangle((tl, (tl[0] + width, tl[1] + height)), outline='orange')
+            text_pos = (max(0, tl[0]), max(0, tl[1] - 11))
+            text = f'{classes[class_index]} {round(confidence * 100, 1)}%'
+            text_bbox = draw.textbbox(text_pos, text)
+            draw.rectangle(text_bbox, fill='orange')
+            draw.text(text_pos, text)
+    if file is None:
+        print('Show Image')
+        plt.figure()
+        plt.imshow(image)
+        plt.axis('off')
+        plt.show()
+        #image.show()
+    else:
+        output_dir = 'output' #os.path.dirname('output')
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+        if not file.endswith('.png'):
+            file += '.png'
+        image.save(output_dir+'/'+file)
+
