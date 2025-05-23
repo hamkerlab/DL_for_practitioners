@@ -91,7 +91,7 @@ We added two pre-defined environments: one for linux, one for windows (without P
 You can create your conda environment also based on this:
 
 ```
-conda env create -v environments_*.yml
+conda env create -f environment_*.yml
 ```
 
 
@@ -110,3 +110,9 @@ conda env create -v environments_*.yml
    2.4. ResNet 
 
    2.5. YOLO 
+
+3. Evaluation and Datasets
+   
+   2.1. Evaluating Neural Network Performance: Metrics and Visualizations
+
+   2.2. Custom Datasets
