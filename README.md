@@ -116,3 +116,9 @@ conda env create -f environment_*.yml
    2.1. Evaluating Neural Network Performance: Metrics and Visualizations
 
    2.2. Custom Datasets
+
+4. Vision Transformer
+   
+   4.1. Vision Transformer (ViT)
+
+   4.2. Compact Convolution Transformer (CCT)
