@@ -99,6 +99,7 @@ conda env create -f environment_*.yml
 
 
 1. Qickstart to PyTorch
+
 2. Deep neural networks
    
    2.1. Introduction to multilayer perceptron (MLP)
@@ -122,3 +123,11 @@ conda env create -f environment_*.yml
    4.1. Vision Transformer (ViT)
 
    4.2. Compact Convolution Transformer (CCT)
+
+6. Self-supervised learning (SSL)
+   
+   6.1. Simple framework for Contrastive Learning of visual Representations (SimCLR)
+
+   6.2. Bootstrap Your Own Latent (BYOL)
+
+   6.3. Self-distillation with no labels (DINO)
