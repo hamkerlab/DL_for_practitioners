@@ -1,3 +1,9 @@
+"""
+Auxiliary functions.
+
+:copyright: Copyright 2025-today, see AUTHORS.
+:license: MIT, see LICENSE for details.
+"""
 from contextlib import contextmanager
 import time
 from typing import Optional, List

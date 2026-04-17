@@ -1,3 +1,12 @@
+"""
+Define own optimizers.
+
+Optimizer:
+ - LARS (Layer-wise Adaptive Rate Scaling)
+
+:copyright: Copyright 2025-today, see AUTHORS.
+:license: MIT, see LICENSE for details.
+"""
 import torch
 from torch.optim.optimizer import Optimizer, required
 import re

@@ -1,3 +1,9 @@
+"""
+Main functions for training and evaluation.
+
+:copyright: Copyright 2025-today, see AUTHORS.
+:license: MIT, see LICENSE for details.
+"""
 import torch
 import torch.nn as nn
 import torch.optim as optim

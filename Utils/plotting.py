@@ -1,3 +1,9 @@
+"""
+Main functions for plotting.
+
+:copyright: Copyright 2025-today, see AUTHORS.
+:license: MIT, see LICENSE for details.
+"""
 import os
 import numpy as np
 

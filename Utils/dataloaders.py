@@ -1,3 +1,15 @@
+"""
+Loading and preparing different datasets.
+
+Datesets:
+ - FashionMNIST
+ - Imagenette
+ - Pascal VOC
+ - UTKFace
+
+:copyright: Copyright 2025-today, see AUTHORS.
+:license: MIT, see LICENSE for details.
+"""
 import os
 import random
 import torch
